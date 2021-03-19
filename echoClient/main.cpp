@@ -9,16 +9,16 @@
 const short PORT_NUM = 7707;
 const short MAX_MSG_LEN = 256;
 
-int main() {
+void connectAndWork(std::string serverIP)
+{
 	WSADATA wsadata;
 	WSAStartup(MAKEWORD(2, 2), &wsadata);
+
 	SOCKET sock;
 	sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (sock == SOCKET_ERROR) {
-		return -1;
+		return;// -1;
 	}
-	std::string serverIP;
-	std::cin >> serverIP;
 
 	SOCKADDR_IN serverADDR = { 0, };
 	serverADDR.sin_family = AF_INET;
@@ -27,19 +27,21 @@ int main() {
 	int re = 0;
 	re = connect(sock, (struct sockaddr*)&serverADDR, sizeof(serverADDR));
 	if (re == SOCKET_ERROR) {
-		return -1;
+		return;// -1;
 	}
-	char msg[MAX_MSG_LEN] = "hello";
+	static int cur = 1;
+	char msg[MAX_MSG_LEN] = "";
+	sprintf(msg, "hello- iam %d", cur++);
 	//gets_s(msg);
 	std::srand(std::time(0));
 	rand();
 	while (1) {
-		int r = (double)rand() / RAND_MAX * (5 * 2) + 2;
+		int r = (double)rand() / RAND_MAX * (15 * 1) + 1;
 		std::this_thread::sleep_for(std::chrono::seconds(r));
-		
+
 		//gets_s(msg, MAX_MSG_LEN);
 		send(sock, msg, sizeof(msg), 0);
-		if (strcmp(msg, "exit") == 0){
+		if (strcmp(msg, "exit") == 0) {
 			break;
 		}
 		recv(sock, msg, sizeof(msg), 0);
@@ -47,5 +49,19 @@ int main() {
 	}
 	closesocket(sock);
 	WSACleanup();
+}
+
+int main() {
+	
+	std::string serverIP;
+	std::cin >> serverIP;
+
+	std::vector<std::thread> workers;
+	for (int i = 0; i < 1000; ++i) {
+		workers.emplace_back(std::thread(connectAndWork, serverIP));
+	}
+	while (1) {
+		//getchar();
+	}
 	return 0;
 }
