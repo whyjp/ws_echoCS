@@ -43,12 +43,24 @@ void connectAndWork(std::string serverIP)
 
 		//gets_s(msg, MAX_MSG_LEN);
 		send(sock, msg, sizeof(msg), 0);
+		printf("send: %s\n", msg);
 		if (strcmp(msg, "exit") == 0) {
 			break;
 		}
 		memset(msg_R, 0, MAX_MSG_LEN);
 		recv(sock, msg_R, sizeof(msg_R), 0);
-		printf("recv: %s\n", msg_R);
+		if (msg_R == "") {
+			auto err = WSAGetLastError();
+			LPVOID lpMsgBuf;
+			FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL,
+				err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+				(LPTSTR)&lpMsgBuf, 0, NULL);
+			wprintf(L"[err] %s", (LPCTSTR)lpMsgBuf);
+			LocalFree(lpMsgBuf);
+		}
+		else {
+			printf("recv: %s\n", msg_R);
+		}
 	}
 	closesocket(sock);
 	WSACleanup();

@@ -1,5 +1,6 @@
 #pragma once
 
+#define FD_SETSIZE 5096
 #include <WinSock2.h>
 #include <Windows.h>
 #include <process.h>
