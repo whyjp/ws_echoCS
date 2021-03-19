@@ -2,10 +2,14 @@
 #include <iostream>
 #include <thread>
 #include <functional>
+#include <atomic>
 
 const short PORT_NUM = 7707;
 const short BLOG_SIZE = 5;
 const short MAX_MSG_LEN = 256;
+
+std::vector<std::thread> workers;
+std::atomic<bool> bCOUT = false;
 
 SOCKET SetTCPServer(short portnum, int blog)
 {
@@ -36,13 +40,16 @@ void DoWork(SOCKET dosock)
 {
 	char msg[MAX_MSG_LEN] = "";
 	while (recv(dosock, msg, sizeof(msg), 0) > 0) {
-		printf("recv: %s \n", msg);
+		if (bCOUT == false) {
+			bCOUT.store(true);
+			printf("recv: %s \n", msg);
+			bCOUT.store(false);
+		}
 		send(dosock, msg, sizeof(msg), 0);
 	}
 	closesocket(dosock);
 }
 
-std::vector<std::thread> workers;
 void AcceptLoop(SOCKET sock) 
 {
 	SOCKET dosock;
@@ -53,7 +60,11 @@ void AcceptLoop(SOCKET sock)
 		if (dosock == SOCKET_ERROR) {
 			break;
 		}
-		printf("%s: %d accept connect \n", inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
+		if (bCOUT == false) {
+			bCOUT.store(true);
+			printf("%s: %d accept connect \n", inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
+			bCOUT.store(false);
+		}
 		workers.emplace_back(std::thread(std::bind(&DoWork, dosock)));
 	}
 	closesocket(sock);
