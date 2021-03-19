@@ -1,5 +1,7 @@
 #include "../winsock_help.h"
 #include <iostream>
+#include <thread>
+#include <functional>
 
 const short PORT_NUM = 7707;
 const short BLOG_SIZE = 5;
@@ -39,6 +41,8 @@ void DoWork(SOCKET dosock)
 	}
 	closesocket(dosock);
 }
+
+std::vector<std::thread> workers;
 void AcceptLoop(SOCKET sock) 
 {
 	SOCKET dosock;
@@ -50,7 +54,7 @@ void AcceptLoop(SOCKET sock)
 			break;
 		}
 		printf("%s: %d accept connect \n", inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
-		DoWork(dosock);
+		workers.emplace_back(std::thread(std::bind(&DoWork, dosock)));
 	}
 	closesocket(sock);
 }
