@@ -32,6 +32,8 @@ void connectAndWork(std::string serverIP)
 	static int cur = 1;
 	char msg[MAX_MSG_LEN] = "";
 	sprintf(msg, "hello- iam %d", cur++);
+
+	char msg_R[MAX_MSG_LEN] = "";
 	//gets_s(msg);
 	std::srand(std::time(0));
 	rand();
@@ -44,8 +46,9 @@ void connectAndWork(std::string serverIP)
 		if (strcmp(msg, "exit") == 0) {
 			break;
 		}
-		recv(sock, msg, sizeof(msg), 0);
-		printf("recv: %s\n", msg);
+		memset(msg_R, 0, MAX_MSG_LEN);
+		recv(sock, msg_R, sizeof(msg_R), 0);
+		printf("recv: %s\n", msg_R);
 	}
 	closesocket(sock);
 	WSACleanup();
