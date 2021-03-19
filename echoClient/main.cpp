@@ -9,6 +9,16 @@
 const short PORT_NUM = 7707;
 const short MAX_MSG_LEN = 256;
 
+void errPrint(std::string msg)
+{
+	auto err = WSAGetLastError();
+	LPVOID lpMsgBuf;
+	FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL,
+		err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPSTR)&lpMsgBuf, 0, NULL);
+	printf("[%s:%d] %s", msg, err, (LPCSTR)lpMsgBuf);
+	LocalFree(lpMsgBuf);
+}
 void connectAndWork(std::string serverIP)
 {
 	WSADATA wsadata;
@@ -42,13 +52,19 @@ void connectAndWork(std::string serverIP)
 		std::this_thread::sleep_for(std::chrono::seconds(r));
 
 		//gets_s(msg, MAX_MSG_LEN);
-		send(sock, msg, sizeof(msg), 0);
+		if (send(sock, msg, sizeof(msg), 0) == SOCKET_ERROR) {
+			errPrint(msg);
+			break;
+		}
 		printf("send: %s\n", msg);
 		if (strcmp(msg, "exit") == 0) {
 			break;
 		}
 		memset(msg_R, 0, MAX_MSG_LEN);
-		recv(sock, msg_R, sizeof(msg_R), 0);
+		if (recv(sock, msg_R, sizeof(msg_R), 0) == SOCKET_ERROR) {
+			errPrint(msg);
+			break;
+		}
 		if (strcmp(msg_R, "") == 0) {
 			auto err = WSAGetLastError();
 			LPVOID lpMsgBuf;
