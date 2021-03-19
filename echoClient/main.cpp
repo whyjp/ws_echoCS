@@ -49,13 +49,13 @@ void connectAndWork(std::string serverIP)
 		}
 		memset(msg_R, 0, MAX_MSG_LEN);
 		recv(sock, msg_R, sizeof(msg_R), 0);
-		if (msg_R == "") {
+		if (strcmp(msg_R, "") == 0) {
 			auto err = WSAGetLastError();
 			LPVOID lpMsgBuf;
-			FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL,
+			FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL,
 				err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-				(LPTSTR)&lpMsgBuf, 0, NULL);
-			wprintf(L"[err] %s", (LPCTSTR)lpMsgBuf);
+				(LPSTR)&lpMsgBuf, 0, NULL);
+			printf("[%s:%d] %s", msg, err, (LPCSTR)lpMsgBuf);
 			LocalFree(lpMsgBuf);
 		}
 		else {
