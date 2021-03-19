@@ -109,24 +109,8 @@ void AcceptLoop(SOCKET sock)
 			}
 		}
 	}
-	return;
-
-	SOCKET dosock;
-	SOCKADDR_IN clientAddr = { 0, };
-	int len = sizeof(clientAddr);
-	while (1) {
-		dosock = accept(sock, (SOCKADDR*)&clientAddr, &len);
-		if (dosock == SOCKET_ERROR) {
-			break;
-		}
-		if (bCOUT == false) {
-			bCOUT.store(true);
-			printf("%s: %d accept connect \n", inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
-			bCOUT.store(false);
-		}
-		workers.emplace_back(std::thread(std::bind(&DoWork, dosock)));
-	}
 	closesocket(sock);
+	return;
 }
 
 int main()
