@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <string>
+#include <thread>
 
 #include "../winsock_help.h"
 
@@ -27,10 +28,12 @@ int main() {
 	if (re == SOCKET_ERROR) {
 		return -1;
 	}
-	char msg[MAX_MSG_LEN] = "";
+	char msg[MAX_MSG_LEN] = "hello";
 	gets_s(msg);
 	while (1) {
-		gets_s(msg, MAX_MSG_LEN);
+		std::this_thread::sleep_for(std::chrono::seconds(2));
+		
+		//gets_s(msg, MAX_MSG_LEN);
 		send(sock, msg, sizeof(msg), 0);
 		if (strcmp(msg, "exit") == 0){
 			break;
