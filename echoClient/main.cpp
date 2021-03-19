@@ -30,7 +30,7 @@ int main() {
 		return -1;
 	}
 	char msg[MAX_MSG_LEN] = "hello";
-	gets_s(msg);
+	//gets_s(msg);
 	std::srand(std::time(0));
 	rand();
 	while (1) {
