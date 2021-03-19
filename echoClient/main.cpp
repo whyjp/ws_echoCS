@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <thread>
+#include <ctime>
 
 #include "../winsock_help.h"
 
@@ -30,8 +31,11 @@ int main() {
 	}
 	char msg[MAX_MSG_LEN] = "hello";
 	gets_s(msg);
+	std::srand(std::time(0));
+	rand();
 	while (1) {
-		std::this_thread::sleep_for(std::chrono::seconds(2));
+		int r = (double)rand() / RAND_MAX * (5 * 2) + 2;
+		std::this_thread::sleep_for(std::chrono::seconds(r));
 		
 		//gets_s(msg, MAX_MSG_LEN);
 		send(sock, msg, sizeof(msg), 0);
