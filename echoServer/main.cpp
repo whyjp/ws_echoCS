@@ -32,10 +32,12 @@ SOCKET SetTCPServer(short portnum, int blog)
 	int re = 0;
 	re = bind(sock, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
 	if (re == SOCKET_ERROR) {
+		errPrint("bind ERR");
 		return -1;
 	}
 	re = listen(sock, blog);
 	if (re == SOCKET_ERROR) {
+		errPrint("listen ERR");
 		return - 1;
 	}
 
@@ -43,6 +45,7 @@ SOCKET SetTCPServer(short portnum, int blog)
 	FD_SET(sock, &read);
 	return sock;
 }
+//normal socket, thread multiplex
 void DoWorkLoop(SOCKET dosock)
 {
 	char msg[MAX_MSG_LEN] = "";
@@ -56,6 +59,7 @@ void DoWorkLoop(SOCKET dosock)
 	}
 	closesocket(dosock);
 }
+//select multiplex
 void DoWork(SOCKET dosock)
 {
 	char msg[MAX_MSG_LEN] = "";
@@ -83,6 +87,7 @@ void DoWork(SOCKET dosock)
 	}
 }
 
+//select 에서는 acceptloop 보다는 소켓 이벤트에 대한 모든 루프 라고 봐야함
 void AcceptLoop(SOCKET sock) 
 {
 	int re;

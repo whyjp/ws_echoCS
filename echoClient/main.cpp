@@ -75,7 +75,7 @@ int main() {
 	//std::cin >> serverIP;
 
 	std::vector<std::thread> workers;
-	for (int i = 0; i < 1000; ++i) {
+	for (int i = 0; i < 500; ++i) {
 		workers.emplace_back(std::thread(connectAndWork, serverIP));
 	}
 	while (1) {
