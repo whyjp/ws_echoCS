@@ -33,7 +33,6 @@ void WorkerThread(HANDLE hIOCP)
 	SOCKET dosock;
 	DWORD receiveBytes;
 	DWORD bytesSend;
-	DWORD completionKey;
 	sInfo* info;
 	DWORD flags = 0;
 	skeyInfo* keyInfo;
@@ -92,7 +91,7 @@ void initThreadPOOL()
 	SYSTEM_INFO sysInfo;
 	GetSystemInfo(&sysInfo);
 
-	for (int i = 0; i < sysInfo.dwNumberOfProcessors; ++i) {
+	for (DWORD i = 0; i < sysInfo.dwNumberOfProcessors; ++i) {
 		workers.emplace_back(std::thread(&WorkerThread, hIOCP));
 	}
 }
@@ -123,25 +122,6 @@ SOCKET SetTCPServer(short portnum, int blog)
 		return - 1;
 	}
 	return sock;
-}
-//normal socket, thread multiplex
-void DoWorkLoop(SOCKET dosock)
-{
-	char msg[MAX_MSG_LEN] = "";
-	while (recv(dosock, msg, sizeof(msg), 0) > 0) {
-		if (bCOUT == false) {
-			bCOUT.store(true);
-			printf("recv: %s \n", msg);
-			bCOUT.store(false);
-		}
-		send(dosock, msg, sizeof(msg), 0);
-	}
-	closesocket(dosock);
-}
-//select multiplex
-void DoWork(SOCKET dosock)
-{
-
 }
 
 //iocp 에서는 accept 된 socket 을 iocp 와 연결해주며 async recv 를 호출해두어 대기상태로 돌린다
