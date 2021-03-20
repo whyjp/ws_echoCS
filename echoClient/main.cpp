@@ -9,20 +9,8 @@
 const short PORT_NUM = 7707;
 const short MAX_MSG_LEN = 256;
 
-void errPrint(std::string msg)
-{
-	auto err = WSAGetLastError();
-	LPVOID lpMsgBuf;
-	FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL,
-		err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-		(LPSTR)&lpMsgBuf, 0, NULL);
-	printf("[%s:%d] %s", msg, err, (LPCSTR)lpMsgBuf);
-	LocalFree(lpMsgBuf);
-}
 void connectAndWork(std::string serverIP)
 {
-	WSADATA wsadata;
-	WSAStartup(MAKEWORD(2, 2), &wsadata);
 
 	SOCKET sock;
 	sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -34,6 +22,7 @@ void connectAndWork(std::string serverIP)
 	serverADDR.sin_family = AF_INET;
 	serverADDR.sin_addr.S_un.S_addr = inet_addr(serverIP.c_str());
 	serverADDR.sin_port = htons(PORT_NUM);
+
 	int re = 0;
 	re = connect(sock, (struct sockaddr*)&serverADDR, sizeof(serverADDR));
 	if (re == SOCKET_ERROR) {
@@ -41,6 +30,7 @@ void connectAndWork(std::string serverIP)
 	}
 	static int cur = 1;
 	char msg[MAX_MSG_LEN] = "";
+	printf("connected : %d \n", cur);
 	sprintf(msg, "hello- iam %d", cur++);
 
 	char msg_R[MAX_MSG_LEN] = "";
@@ -48,7 +38,7 @@ void connectAndWork(std::string serverIP)
 	std::srand(std::time(0));
 	rand();
 	while (1) {
-		int r = (double)rand() / RAND_MAX * (15 * 1) + 1;
+		int r = (double)rand() / RAND_MAX * (10 * 1) + 1;
 		std::this_thread::sleep_for(std::chrono::seconds(r));
 
 		//gets_s(msg, MAX_MSG_LEN);
@@ -66,26 +56,23 @@ void connectAndWork(std::string serverIP)
 			break;
 		}
 		if (strcmp(msg_R, "") == 0) {
-			auto err = WSAGetLastError();
-			LPVOID lpMsgBuf;
-			FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL,
-				err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-				(LPSTR)&lpMsgBuf, 0, NULL);
-			printf("[%s:%d] %s", msg, err, (LPCSTR)lpMsgBuf);
-			LocalFree(lpMsgBuf);
+			errPrint(msg);
+			break;
 		}
 		else {
 			printf("recv: %s\n", msg_R);
 		}
 	}
 	closesocket(sock);
-	WSACleanup();
 }
 
 int main() {
-	
-	std::string serverIP;
-	std::cin >> serverIP;
+
+	WSADATA wsadata;
+	WSAStartup(MAKEWORD(2, 2), &wsadata);
+
+	std::string serverIP = "192.168.164.1";
+	//std::cin >> serverIP;
 
 	std::vector<std::thread> workers;
 	for (int i = 0; i < 1000; ++i) {
@@ -94,5 +81,6 @@ int main() {
 	while (1) {
 		//getchar();
 	}
+	WSACleanup();
 	return 0;
 }

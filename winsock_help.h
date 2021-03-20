@@ -29,3 +29,14 @@ IN_ADDR GetMyIP()
 	}
 	return addr;
 }
+
+void errPrint(std::string msg)
+{
+	auto err = WSAGetLastError();
+	LPVOID lpMsgBuf;
+	FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL,
+		err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPSTR)&lpMsgBuf, 0, NULL);
+	printf("[%s:%d] %s", msg, err, (LPCSTR)lpMsgBuf);
+	LocalFree(lpMsgBuf);
+}

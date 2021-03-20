@@ -60,15 +60,25 @@ void DoWork(SOCKET dosock)
 {
 	char msg[MAX_MSG_LEN] = "";
 	auto len = recv(dosock, msg, sizeof(msg), 0);
-	if(len != 0){
+	if (len == SOCKET_ERROR) {
+		errPrint("err");
+		FD_CLR(dosock, &read);
+		closesocket(dosock);
+	} else if(len != 0){
 		if (bCOUT == false) {
 			bCOUT.store(true);
 			printf("recv: %s \n", msg);
 			bCOUT.store(false);
 		}
-		send(dosock, msg, sizeof(msg), 0);
-	}
-	else {
+		len = send(dosock, msg, sizeof(msg), 0);
+
+		if (len == SOCKET_ERROR) {
+			errPrint("err");
+			FD_CLR(dosock, &read);
+			closesocket(dosock);
+		}
+	} else {
+		FD_CLR(dosock, &read);
 		closesocket(dosock);
 	}
 }
@@ -99,7 +109,11 @@ void AcceptLoop(SOCKET sock)
 					FD_SET(dosock, &read);
 					if (bCOUT == false) {
 						bCOUT.store(true);
-						printf("%s: %d accept connect \n", inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
+						printf("%s: %d accept connect [%d in %d] \n", 
+							inet_ntoa(clientAddr.sin_addr), 
+							ntohs(clientAddr.sin_port),
+							(int)dosock,
+							read.fd_count);
 						bCOUT.store(false);
 					}
 				}
