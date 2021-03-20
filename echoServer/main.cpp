@@ -10,7 +10,6 @@ const short BLOG_SIZE = 5;
 const short MAX_MSG_LEN = 256;
 
 std::vector<std::thread> workers;
-std::atomic<bool> bCOUT = false;
 std::mutex mutexG;
 
 HANDLE hIOCP;
@@ -91,7 +90,7 @@ void initThreadPOOL()
 	SYSTEM_INFO sysInfo;
 	GetSystemInfo(&sysInfo);
 
-	for (DWORD i = 0; i < sysInfo.dwNumberOfProcessors; ++i) {
+	for (DWORD i = 0; i < sysInfo.dwNumberOfProcessors*2; ++i) {
 		workers.emplace_back(std::thread(&WorkerThread, hIOCP));
 	}
 }
