@@ -41,6 +41,6 @@ void errPrint(std::string msg)
 	FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL,
 		err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 		(LPSTR)&lpMsgBuf, 0, NULL);
-	printf("[%s:%d] %s", msg.c_str(), err, (LPCSTR)lpMsgBuf);
+	printf("<--------- [%s:%d] %s \n", msg.c_str(), err, (LPCSTR)lpMsgBuf);
 	LocalFree(lpMsgBuf);
 }
