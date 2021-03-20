@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 #include <malloc.h>
+#include <atomic>
+#include <mutex>
 
 #pragma comment(lib, "ws2_32")
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
@@ -30,8 +32,10 @@ IN_ADDR GetMyIP()
 	return addr;
 }
 
+std::mutex errPrint_Mutex;
 void errPrint(std::string msg)
 {
+	std::lock_guard<std::mutex> ggM(errPrint_Mutex);
 	auto err = WSAGetLastError();
 	LPVOID lpMsgBuf;
 	FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL,
