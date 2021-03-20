@@ -64,6 +64,14 @@ void WorkerThread(HANDLE hIOCP)
 						}
 					}
 					WSARecv(dosock, &info->dataBuffer, 1, &receiveBytes, &flags, &info->overlapped, NULL);
+
+					if (len == SOCKET_ERROR) {
+						if (WSAGetLastError() != WSA_IO_PENDING) {
+							errPrint("WSASend_ERROR");
+							closesocket(dosock);
+							break;
+						}
+					}
 				}
 			}
 		}
