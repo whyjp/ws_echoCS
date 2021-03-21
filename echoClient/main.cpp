@@ -20,7 +20,7 @@ void connectAndWork(std::string serverIP)
 
 	SOCKADDR_IN serverADDR = { 0, };
 	serverADDR.sin_family = AF_INET;
-	serverADDR.sin_addr.S_un.S_addr = inet_addr(serverIP.c_str());
+	auto ret = InetPtonA(AF_INET, serverIP.c_str(), &serverADDR.sin_addr.S_un.S_addr);
 	serverADDR.sin_port = htons(PORT_NUM);
 
 	int re = 0;
