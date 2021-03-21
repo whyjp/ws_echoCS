@@ -152,20 +152,20 @@ void AcceptLoop(SOCKET sock)
 			info->dataBuffer.buf = info->msg;
 			info->dataBuffer.len = MAX_MSG_LEN;
 			info->myNum = nALL - 1;
+		}
 
-			keyInfo = new skeyInfo();
-			keyInfo->socket = dosock;
-			keyInfo->ipADDR = inet_ntoa(clientAddr.sin_addr);
-			keyInfo->port = clientAddr.sin_port;
-			keyInfo->clientAddr = clientAddr;
+		keyInfo = new skeyInfo();
+		keyInfo->socket = dosock;
+		keyInfo->ipADDR = inet_ntoa(clientAddr.sin_addr);
+		keyInfo->port = clientAddr.sin_port;
+		keyInfo->clientAddr = clientAddr;
 
-			CreateIoCompletionPort((HANDLE)dosock, hIOCP, (DWORD)keyInfo, 0);
-			auto ret = WSARecv(info->socket, &info->dataBuffer, 1, &receiveBytes, &flags, &info->overlapped, NULL);
-			if (ret == SOCKET_ERROR) {
-				if (WSAGetLastError() != WSA_IO_PENDING) {
-					errPrint("firstWSARecv_ERROR");
-					break;
-				}
+		CreateIoCompletionPort((HANDLE)dosock, hIOCP, (DWORD)keyInfo, 0);
+		auto ret = WSARecv(info->socket, &info->dataBuffer, 1, &receiveBytes, &flags, &info->overlapped, NULL);
+		if (ret == SOCKET_ERROR) {
+			if (WSAGetLastError() != WSA_IO_PENDING) {
+				errPrint("firstWSARecv_ERROR");
+				break;
 			}
 		}
 	}

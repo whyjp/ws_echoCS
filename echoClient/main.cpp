@@ -31,7 +31,8 @@ void connectAndWork(std::string serverIP)
 	static int cur = 1;
 	char msg[MAX_MSG_LEN] = "";
 	printf("connected : %d \n", cur);
-	sprintf(msg, "hello- iam %d", cur++);
+	sprintf(msg, "hello- iam %d:%d",
+		std::this_thread::get_id(), cur++);
 
 	char msg_R[MAX_MSG_LEN] = "";
 	//gets_s(msg);
