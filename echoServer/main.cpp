@@ -6,6 +6,7 @@
 #include <functional>
 #include <atomic>
 #include <mutex>
+#include <functional>
 
 #include <boost/asio.hpp>
 
@@ -89,9 +90,9 @@ private:
 	tcp::socket socket_;
 };
 
-void worker(boost::asio::io_service& io_service_S)
+void worker(boost::asio::io_service& io_service)
 {
-	io_service_S.run();
+	io_service.run();
 }
 int main()
 {
@@ -104,9 +105,10 @@ int main()
 	server s(io_service_S, PORT_NUM);
 
 	for (DWORD i = 0; i < 12 * 2; ++i) {
-		workers.emplace_back([&io_service_S] {
+		/*workers.emplace_back([&io_service_S] {
 			io_service_S.run();
-			});
+			});*/
+		workers.emplace_back(std::thread(&worker, std::ref(io_service_S)));
 	}
 
 	while (1) {
