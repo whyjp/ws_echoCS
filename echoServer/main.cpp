@@ -18,52 +18,6 @@ std::mutex mutexG;
 
 using boost::asio::ip::tcp;
 
-void WorkerThread(tcp::socket& socket)
-{
-	SOCKET dosock;
-	DWORD receiveBytes;
-	DWORD bytesSend;
-
-	while (1) {
-		/*if (GetQueuedCompletionStatus(hIOCP, &receiveBytes, (PULONG_PTR)&keyInfo, (LPOVERLAPPED*)&info, INFINITE)) {
-			dosock = keyInfo->socket;
-			{
-				std::lock_guard<std::mutex> lock_guard(mutexG);
-				printf("%s: %d recv from queued [%d] \n",
-					keyInfo->ipADDR.c_str(),
-					keyInfo->port,
-					(int)keyInfo->socket);
-				if (receiveBytes == SOCKET_ERROR) {
-					closesocket(dosock);
-				}
-				else if (receiveBytes != 0) {
-					printf("recv: %s  [ num : %d ]\n", info->msg, info->myNum);
-
-					auto len = WSASend(dosock, (LPWSABUF)&info->dataBuffer, 1, &bytesSend, 0, NULL, NULL);
-
-					if (len == SOCKET_ERROR) {
-						if (WSAGetLastError() != WSA_IO_PENDING) {
-							closesocket(dosock);
-							break;
-						}
-					}
-					WSARecv(dosock, &info->dataBuffer, 1, &receiveBytes, &flags, &info->overlapped, NULL);
-
-					if (len == SOCKET_ERROR) {
-						if (WSAGetLastError() != WSA_IO_PENDING) {
-							closesocket(dosock);
-							break;
-						}
-					}
-				}
-			}
-		}
-		else {
-			closesocket(dosock);
-			break;
-		}*/
-	}
-}
 class session : public std::enable_shared_from_this<session>
 {
 public:
@@ -83,8 +37,10 @@ private:
 			{
 				if (!ec) {
 					{
-						std::lock_guard<std::mutex> lock_guard(mutexG); 
-						printf("recv: %s \n", data_);
+						std::lock_guard<std::mutex> lock_guard(mutexG);
+						std::stringstream ss;
+						ss << std::this_thread::get_id();
+						printf("[%s] recv: %s \n", ss.str().c_str(), data_);
 					}
 					do_write(length);
 				}
@@ -118,6 +74,12 @@ private:
 		acceptor_.async_accept(socket_,
 			[this](boost::system::error_code ec) {
 				if (!ec) {
+					{
+						std::lock_guard<std::mutex> lock_guard(mutexG);
+						std::stringstream ss;
+						ss << std::this_thread::get_id();
+						printf("[%s] accept: \n", ss.str().c_str());
+					}
 					std::make_shared<session>(std::move(socket_))->start();
 				}
 				do_accept();
@@ -126,11 +88,31 @@ private:
 	tcp::acceptor acceptor_;
 	tcp::socket socket_;
 };
+
+void worker(boost::asio::io_service& io_service_S)
+{
+	io_service_S.run();
+}
 int main()
 {
+	std::stringstream ss;
+	ss << std::this_thread::get_id();
+	printf("[%s] main : \n", ss.str().c_str());
+
 	boost::asio::io_service io_service_S;
+	std::vector<std::thread> workers;
 	server s(io_service_S, PORT_NUM);
-	io_service_S.run();
+
+	for (DWORD i = 0; i < 12 * 2; ++i) {
+		workers.emplace_back([&io_service_S] {
+			io_service_S.run();
+			});
+	}
+
+	while (1) {
+
+	}
+
 
 	return 0;
 }

@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <thread>
 #include <ctime>
@@ -11,7 +12,6 @@ const short MAX_MSG_LEN = 256;
 
 void connectAndWork(std::string serverIP)
 {
-
 	SOCKET sock;
 	sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (sock == SOCKET_ERROR) {
@@ -31,15 +31,17 @@ void connectAndWork(std::string serverIP)
 	static int cur = 1;
 	char msg[MAX_MSG_LEN] = "";
 	printf("connected : %d \n", cur);
-	sprintf(msg, "hello- iam %d:%d",
-		std::this_thread::get_id(), cur++);
+	std::stringstream ss;
+	ss << std::this_thread::get_id();
+	sprintf(msg, "hello- iam %s:%d",
+		ss.str().c_str(), cur++);
 
 	char msg_R[MAX_MSG_LEN] = "";
 	//gets_s(msg);
-	std::srand(std::time(0));
+	std::srand(static_cast<unsigned int>(std::time(0)));
 	rand();
 	while (1) {
-		int r = (double)rand() / RAND_MAX * (10 * 1) + 1;
+		int r = static_cast<int>((double)rand() / RAND_MAX * (10 * 1) + 1);
 		std::this_thread::sleep_for(std::chrono::seconds(r));
 
 		//gets_s(msg, MAX_MSG_LEN);
