@@ -1,5 +1,3 @@
-//#include "../winsock_help.h"
-//#define _WIN32_WINDOWS
 
 #include <iostream>
 #include <thread>

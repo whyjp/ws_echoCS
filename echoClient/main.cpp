@@ -40,8 +40,10 @@ void connectAndWork(std::string serverIP)
 	//gets_s(msg);
 	std::srand(static_cast<unsigned int>(std::time(0)));
 	rand();
+
 	while (1) {
 		int r = static_cast<int>((double)rand() / RAND_MAX * (10 * 1) + 1);
+		printf("[%s] sleep for %d \n", ss.str().c_str(), r);
 		std::this_thread::sleep_for(std::chrono::seconds(r));
 
 		//gets_s(msg, MAX_MSG_LEN);
